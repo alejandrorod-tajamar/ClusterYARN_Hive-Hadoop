@@ -1,0 +1,44 @@
+services:
+  namenode:
+    image: bde2020/hadoop-namenode:latest
+    ports:
+      - "9870:9870"
+    environment:
+      - CLUSTER_NAME=hadoop-cluster
+    volumes:
+      - namenode_data:/hadoop/dfs/name
+
+  datanode:
+    image: bde2020/hadoop-datanode:latest
+    environment:
+      - CLUSTER_NAME=hadoop-cluster
+    volumes:
+      - datanode_data:/hadoop/dfs/data
+    depends_on:
+      - namenode
+
+  resource_manager:
+    image: bde2020/hadoop-resourcemanager:latest
+    ports:
+      - "8088:8088"
+    depends_on:
+      - namenode
+
+  node_manager:
+    image: bde2020/hadoop-nodemanager:latest
+    depends_on:
+      - resource_manager
+
+  hive:
+    image: bde2020/hive:latest
+    ports:
+      - "10000:10000"
+    environment:
+      - HIVE_METASTORE_DB=derby
+    depends_on:
+      - namenode
+      - datanode
+
+volumes:
+  namenode_data:
+  datanode_data:
